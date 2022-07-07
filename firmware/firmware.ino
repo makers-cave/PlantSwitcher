@@ -6,7 +6,10 @@
 #include <ArduinoJson.h>
 #include "SPIFFS.h"
 #include "display.h"
+
 // Setup Vars
+AsyncWebServer      web(HTTP_PORT); // Web Server
+AsyncWebSocket      ws("/ws");      // Web Socket Plugin
 const char *ssid = "MAI_SWITCHER";
 const char *password = "admin77477";
 IPAddress ip(192, 168, 4, 1);
@@ -129,31 +132,47 @@ void startAutoSwitching(){
     delay(LINE2_TIME);
 }
 
-void readPrefs(){
-  if(!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-  
-  File file = SPIFFS.open("/config.json");
-  if(!file){
-    Serial.println("Failed to open file for reading");
-    return;
-  }
+// Configure and start the web server
+void initWeb() {
+    // Handle OTA update from asynchronous callbacks
+    Update.runAsync(true);
 
-  StaticJsonDocument<300> doc;//Memory pool
+    // Add header for SVG plot support?
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
 
-  auto error = deserializeJson(doc, file);
-  if (error) {   //Check for errors in parsing
-    Serial.println("Parsing failed");
-    return; 
-  }
-  JsonObject parsed = doc.to<JsonObject>();
-  const char * sensorType = parsed["SensorType"];
-  int value = parsed["Value"];
+    // Setup WebSockets
+    ws.onEvent(wsEvent);
+    web.addHandler(&ws);
 
-  file.close();
-}
-void savePrefs(){
+     // JSON Config Handler
+    web.on("/conf", HTTP_GET, [](AsyncWebServerRequest *request) {
+        String jsonString;
+        serializeConfig(jsonString, true);
+        request->send(200, "text/json", jsonString);
+    });
+
+    // // Firmware upload handler - only in station mode
+    // web.on("/updatefw", HTTP_POST, [](AsyncWebServerRequest *request) {
+    //     ws.textAll("X6");
+    // }, handle_fw_upload).setFilter(ON_STA_FILTER);
+
+    // Static Handler
+    web.serveStatic("/", SPIFFS, "/www/").setDefaultFile("index.html");
+
+    // Raw config file Handler - but only on station
+//  web.serveStatic("/config.json", SPIFFS, "/config.json").setFilter(ON_STA_FILTER);
+
+    web.onNotFound([](AsyncWebServerRequest *request) {
+        request->send(404, "text/plain", "Page not found");
+    });
+
+    DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Origin"), "*");
+
+    // Config file upload handler - only in station mode
+    // web.on("/config", HTTP_POST, [](AsyncWebServerRequest *request) {
+    //     ws.textAll("X6");
+    // }, handle_config_upload).setFilter(ON_STA_FILTER);
+
+    web.begin();
 
 }
