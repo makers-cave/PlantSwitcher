@@ -5,7 +5,7 @@
 #include <Preferences.h>
 #include <ArduinoJson.h>
 #include "SPIFFS.h"
-
+#include "display.h"
 // Setup Vars
 const char *ssid = "MAI_SWITCHER";
 const char *password = "admin77477";
@@ -13,7 +13,7 @@ IPAddress ip(192, 168, 4, 1);
 IPAddress netmask(255, 255, 255, 0);
 int CLEARING_TIME = 1000;
 int LINE1_TIME = 7500;
-int LINE2_TIME = 5000
+int LINE2_TIME = 5000;
 int POS_1 = 0;
 int POS_2 = 30;
 int POS_SAFE = 15;
@@ -140,27 +140,20 @@ void readPrefs(){
     Serial.println("Failed to open file for reading");
     return;
   }
-  
-  Serial.println("File Content:");
-  while(file.available()){
-    char JSONContent[] = file.read();
-    loadJsonContent(JSONContent);
+
+  StaticJsonDocument<300> doc;//Memory pool
+
+  auto error = deserializeJson(doc, file);
+  if (error) {   //Check for errors in parsing
+    Serial.println("Parsing failed");
+    return; 
   }
+  JsonObject parsed = doc.to<JsonObject>();
+  const char * sensorType = parsed["SensorType"];
+  int value = parsed["Value"];
+
   file.close();
 }
 void savePrefs(){
 
-}
-
-loadJsonConent(char data[]){
-  StaticJsonBuffer<300> JSONBuffer;//Memory pool
-  JsonObject& parsed = JSONBuffer.parseObject(data);
- 
-  if (!parsed.success()) {   //Check for errors in parsing
-    Serial.println("Parsing failed");
-    return; 
-  }
- 
-  const char * sensorType = parsed["SensorType"];
-  int value = parsed["Value"];
 }
