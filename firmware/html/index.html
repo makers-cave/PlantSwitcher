@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title id="title"></title>
+  <!-- for local development -->
+  <!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="style.css"> -->
+
+  <link rel="stylesheet" type="text/css" href="esps.css">
+
+  <style>
+
+  </style>
+</head>
+
+<body>
+    <h2>Line Switcher Web Server</h2>
+    <div id="home">
+      <div class="grid-container home-grid">
+        <div class="span-2"><h4>Mode</h4></div>
+        <div><button class="status-green" id="auto"  onclick="onAutoClick()">Auto</button></div>
+        <div><button class="status-red" id="manual" onclick="OnManualClick()">Manual</button></div>
+        <div class="span-2"><h4>Status</h4></div>
+        <div><button class="status-green" id="line1" onclick="onLine1Click()">Line 1</button></div>
+        <div><button class="status-red" id="line2" onclick="onLine2Click()">Line 2</button></div>
+      </div>
+      <div class="spacer"></div>
+      <Button onclick="onConfigureClick()">Configure</Button>
+    </div>
+    <div id="configure" class="hidden">
+      <div class="grid-container config-grid">
+        <div>Clearing Time</div>
+        <div><button onclick="ctClick(0)">-</button><input id="ct" class="inputs" type="number" step='0.1' placeholder='0.0' min="0.1" max="30"><button onclick="ctClick(1)">+</button></div>
+        <div>Line 1 Angle</div>  
+        <div><button onclick="l1aClick(0)">-</button><input id="l1a" class="inputs" type="number" placeholder='0' min="0" max="180"><button onclick="l1aClick(1)">+</button></div>
+        <div>Line 2 Angle</div>
+        <div><button onclick="l2aClick(0)">-</button><input id="l2a" class="inputs" type="number" placeholder='0' min="0" max="180"><button onclick="l2aClick(1)">+</button></div>
+        <div>Line 1 Runtime</div>
+        <div><button onclick="l1rClick(0)">-</button><input id="l1r" class="inputs" type="number" step='0.1' placeholder='0.0' min="0.1" max="30"><button onclick="l1rClick(1)">+</button></div>
+        <div>Line 2 Runtime</div>
+        <div><button onclick="l2rClick(0)">-</button><input id="l2r" class="inputs" type="number" step='0.1' placeholder='0.0' min="0.1" max="30"><button onclick="l2rClick(1)">+</button></div>
+      </div>
+      <button onclick="onSaveClick()">Save</button>
+      <button onclick="onBackClick()" class="grey">Back</button>
+    </div>
+
+  <!-- for local development -->
+  <!-- <script type="text/javascript" src="js/jquery-3.1.1.js"></script>
+  <script type="text/javascript" src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="js/jqColorPicker.js"></script>
+  <script type="text/javascript" src="script.js"></script> -->
+ 
+  <script type="text/javascript" src="esps.js"></script>
+
+  <script>
+    wsConnect();
+  </script>
+</body>
+</html>
