@@ -1,11 +1,7 @@
-#include <Nextion.h>
 #include <ESP32Servo.h>
 #include <ArduinoJson.h>
 #include "SPIFFS.h"
 #include <ESPAsyncWebServer.h>
-
-
-
 
 // Setup Vars
 #define HTTP_PORT       80 
@@ -23,36 +19,6 @@ int POS_SAFE = 15;
 bool GO_MANUAL = false;
 AsyncWebServer      web(HTTP_PORT); // Web Server
 AsyncWebSocket      ws("/ws");      // Web Socket Plugin
-
-
-//NexPage page0    = NexPage(0, 0, "Home");
-//NexButton btnAuto = NexButton(0, 2, "btnAuto");
-//NexButton btnManual = NexButton(0, 3, "btnManual");
-//NexText stline1 = NexText(0, 4, "stline1");
-//NexText stline2 = NexText(0, 5, "stline2");
-//NexPicture btna10 = NexPicture(1, 11, "btna10");
-//NexPicture btna11 = NexPicture(1, 12, "btna11");
-//NexPicture btna20 = NexPicture(1, 18, "btna20");
-//NexPicture btna21 = NexPicture(1, 19, "btna21");
-//NexButton btnSave = NexButton(1, 14, "btnSave");
-//NexNumber xct = NexNumber(1, 13, "xct");
-//NexNumber na1 = NexNumber(1, 6, "na1");
-//NexNumber na2 = NexNumber(1, 7, "na2");
-//NexNumber xrt1 = NexNumber(1, 16, "xrt1");
-//NexNumber xrt2 = NexNumber(1, 17, "xrt2");
-//
-//// Register a button object to the touch event list.  
-//NexTouch *nex_listen_list[] = {
-//  &btnAuto,
-//  &btnManual,
-//  &btna10,
-//  &btna11,
-//  &btna20,
-//  &btna21,
-//  &btnSave,
-//  NULL
-//};
-
 
 // Pins
 #define PLC1_IN 26
@@ -171,8 +137,13 @@ void startAutoSwitching(){
     delay(LINE2_TIME);
 }
 void initWeb() {
+  SPIFFS.begin();
   ws.onEvent(wsEvent);
   web.addHandler(&ws);
+
+  DefaultHeaders::Instance ().addHeader (F ("Access-Control-Allow-Origin"),  "*");
+  DefaultHeaders::Instance ().addHeader (F ("Access-Control-Allow-Headers"), "append, delete, entries, foreach, get, has, keys, set, values, Authorization, Content-Type, Content-Range, Content-Disposition, Content-Description, cache-control, x-requested-with");
+  DefaultHeaders::Instance ().addHeader (F ("Access-Control-Allow-Methods"), "GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH");
 
   // JSON Config Handler
   web.on("/conf", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -183,6 +154,18 @@ void initWeb() {
 
   // Static Handler
   web.serveStatic("/", SPIFFS, "/www/").setDefaultFile("index.html");
+  web.onNotFound([](AsyncWebServerRequest *request) {
+  if (request->method() == HTTP_OPTIONS)
+  {
+    request->send(200);
+  }
+  else
+  {
+    LOG_PORT.println("Not found");
+    request->send(404, "Not found");
+  }
+  web.begin();
+});
 }
 void wsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
   AwsEventType type, void * arg, uint8_t *data, size_t len){
@@ -262,44 +245,11 @@ void setData(uint8_t *data, AsyncWebSocketClient *client){
 void procX(uint8_t *data, AsyncWebSocketClient *client){
   
 }
-//void initDisplay(){
-//  Serial.begin(115200);
-//  nexInit();
-//  btnAuto.attachPop(onAutoClick, &btnAuto);
-//  btnManual.attachPop(onManualClick, &btnManual);
-//  btna10.attachPop(onAngle1MinusClick, &btna10);
-//  btna11.attachPop(onAngle1PlusClick, &btna11);
-//  btna20.attachPop(onAngle2MinusClick, &btna20);
-//  btna21.attachPop(onAngle2PlusClick, &btna21);
-//  btnSave.attachPop(onSaveClick, &btnSave);
-//}
-//void handleDisplay(){
-//  
-//}
 void onAutoClick(){
-//  btnManual.Set_background_color_bco(50712);
-//  btnAuto.Set_background_color_bco(2016);
   AUTO_PROCESS =true;
   GO_MANUAL = false; 
 }
 void onManualClick(){
-//  btnAuto.Set_background_color_bco(2016);
-//  btnManual.Set_background_color_bco(50712);
   AUTO_PROCESS =false;
   GO_MANUAL = true;  
 }
-//void onAngle1MinusClick(void *ptr){
-//  
-//}
-//void onAngle1PlusClick(void *ptr){
-//  
-//}
-//void onAngle2MinusClick(void *ptr){
-//  
-//}
-//void onAngle2PlusClick(void *ptr){
-//  
-//}
-//void onSaveClick(void *ptr){
-//  
-//}
