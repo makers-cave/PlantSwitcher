@@ -1,12 +1,14 @@
-#include <ESP32Servo.h>
+#include <Servo.h>
 #include <ArduinoJson.h>
-#include "SPIFFS.h"
+#include "FS.h"
 #include <ESPAsyncWebServer.h>
 
 // Setup Vars
 #define HTTP_PORT       80 
-const char *ssid = "MAI_SWITCHER";
-const char *password = "admin77477";
+//const char *ssid = "MAI_SWITCHER";
+//const char *password = "admin77477";
+#define ssid "NETGEAR75"
+#define password "sillytulip502"
 IPAddress ip(192, 168, 4, 1);
 IPAddress netmask(255, 255, 255, 0);
 #define LOG_PORT        Serial
@@ -44,20 +46,29 @@ int CURRENT_LINE =1;
 void setup()
 {
   	// Allow allocation of all timers
-	ESP32PWM::allocateTimer(0);
-	ESP32PWM::allocateTimer(1);
-	ESP32PWM::allocateTimer(2);
-	ESP32PWM::allocateTimer(3);
-	switcher.setPeriodHertz(50);    // standard 50 hz servo
+//	ESP32PWM::allocateTimer(0);
+//	ESP32PWM::allocateTimer(1);
+//	ESP32PWM::allocateTimer(2);
+//	ESP32PWM::allocateTimer(3);
+//	switcher.setPeriodHertz(50);    // standard 50 hz servo
 	switcher.attach(SERVO_OUT, 500, 2400);
 
 
   delay(1000);
   LOG_PORT.begin(115200);
   LOG_PORT.println("Starting Wifi");
-  WiFi.mode(WIFI_AP);
-  WiFi.softAPConfig(ip, ip, netmask);
-  WiFi.softAP(ssid, password);
+//  WiFi.mode(WIFI_AP);
+//  WiFi.softAPConfig(ip, ip, netmask);
+//  WiFi.softAP(ssid, password);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED)
+  {
+    LOG_PORT.println("Connection Failed! Rebooting....");
+    delay(5000);
+    ESP.restart();
+  }
+  LOG_PORT.println(WiFi.localIP());
   initWeb();
 }
 
