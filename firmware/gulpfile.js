@@ -20,7 +20,7 @@ gulp.task('html', function() {
             minifyCSS: true,
             minifyJS: true}))
         .pipe(gzip())
-        .pipe(gulp.dest('data/www'));
+        .pipe(gulp.dest('data'));
 });
 
 /* CSS Task */
@@ -30,7 +30,7 @@ gulp.task('css', function() {
         .pipe(concat('esps.css'))
         .pipe(cleancss())
         .pipe(gzip())
-        .pipe(gulp.dest('data/www'));
+        .pipe(gulp.dest('data'));
 });
 
 /* JavaScript Task */
@@ -40,20 +40,20 @@ gulp.task('js', function() {
         .pipe(concat('esps.js'))
         .pipe(uglifyjs())
         .pipe(gzip())
-        .pipe(gulp.dest('data/www'));
+        .pipe(gulp.dest('data'));
 });
 
 /* Image Task */
 gulp.task('image', function() {
     return gulp.src(['html/**/*.png', 'html/**/*.ico'])
         .pipe(plumber())
-        .pipe(gulp.dest('data/www'));
+        .pipe(gulp.dest('data'));
 });
 
 
 /* Clean Task */
 gulp.task('clean', function() {
-    return del(['data/www/*']);
+    return del(['data/*']);
 });
 
 /* Markdown to HTML Task */

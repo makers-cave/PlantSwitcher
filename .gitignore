@@ -1,2 +1,6 @@
 firmware/node_modules/**
-firmware/data/www/**
+firmware/.vscode/**
+firmware/data/**
+firmware/debug/**
+firmware/dist/**
+firmware/firmware/**
